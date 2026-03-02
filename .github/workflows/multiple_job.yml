@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
             name: dragon file
       - name: Verify content
@@ -32,7 +32,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: download artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
             name: dragon file
       - name: Display file
