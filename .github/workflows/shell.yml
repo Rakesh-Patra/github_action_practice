@@ -16,5 +16,5 @@ jobs:
 
       - name: Run Script
         run: |
-            chmod +x script.sh
+            chmod +x ascii-script.sh
             ./ascii-script.sh
