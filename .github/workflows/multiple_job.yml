@@ -10,15 +10,20 @@ jobs:
         run: sudo apt-get install cowsay -y
       - name: Generate message
         run: cowsay -f dragon "Run for cover, I am a DRAGON....RAWR" >> dragon.txt
-      - name: Pause for 30 seconds
-        run: sleep 30
+      - name: upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+            name: dragon file
+            path: path/to/artifact/dragon.txt
 
   test_job_2:
     needs: build_job_1
     runs-on: ubuntu-latest
     steps:
-      - name: Pause for 10 seconds
-        run: sleep 10
+      - name: download artifact
+        uses: actions/download-artifact@v4
+        with:
+            name: dragon file
       - name: Verify content
         run: grep -i "dragon" dragon.txt
 
@@ -26,5 +31,9 @@ jobs:
     needs: [test_job_2]
     runs-on: ubuntu-latest
     steps:
+      - name: download artifact
+        uses: actions/download-artifact@v4
+        with:
+            name: dragon file
       - name: Display file
         run: cat dragon.txt
