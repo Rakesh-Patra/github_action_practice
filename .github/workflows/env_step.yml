@@ -11,14 +11,14 @@ jobs:
       - name: Docker Build
         env:
           CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: siddharth1
-          IMAGE_NAME: github-actions-nginx
+          DOCKER_USERNAME: trainwithshubham
+          IMAGE_NAME: trainwithshubham/gemininip
         run: |
           docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest .
 
       - name: Docker Login
         env:
-          DOCKER_USERNAME: siddharth1
+          DOCKER_USERNAME: trainwithshubham
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
           docker login --username=${DOCKER_USERNAME} \
@@ -27,8 +27,8 @@ jobs:
       - name: Docker Publish
         env:
           CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: siddharth1
-          IMAGE_NAME: github-actions-nginx
+          DOCKER_USERNAME: trainwithshubham
+          IMAGE_NAME: trainwithshubham/gemininip
         run: |
           docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
 
@@ -39,8 +39,8 @@ jobs:
       - name: Docker Run
         env:
           CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: siddharth1
-          IMAGE_NAME: github-actions-nginx
+          DOCKER_USERNAME: trainwithshubham
+          IMAGE_NAME: trainwithshubham/gemininip
         run: |
           docker run -d -p 8080:80 \
             ${{ env.CONTAINER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
