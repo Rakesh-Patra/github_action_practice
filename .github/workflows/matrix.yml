@@ -1,0 +1,21 @@
+name: matrix configuration
+on:
+  workflow_dispatch:
+jobs:
+  deploy:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, ubuntu-20.04, windows-latest]
+        images: [hello-world, alpine]
+        exclude:
+          - os: windows-latest
+            images: alpine
+        include:
+          - os: ubuntu-20.04
+            images: amd64/alpine
+    steps:
+      - name: Echo Docker Details
+        run: docker info
+      - name: Run Image on ${{ matrix.os }}
+        run: docker run ${{ matrix.images }}
