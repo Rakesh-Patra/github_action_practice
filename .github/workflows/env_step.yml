@@ -1,55 +1,24 @@
-name: Exploring Variables and Secrets
+name: Deploy Existing Docker Image with Variables
 
 on:
   push:
 
 jobs:
-  docker:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4   # ✅ Required
-
-      - name: Docker Build
-        env:
-          CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: siddharth1
-          IMAGE_NAME: github-actions-nginx
-        run: |
-          docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest .
-
-      - name: Docker Login
-        env:
-          DOCKER_USERNAME: siddharth1
-        run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login \
-            --username $DOCKER_USERNAME \
-            --password-stdin
-
-      - name: Docker Publish
-        env:
-          CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: siddharth1
-          IMAGE_NAME: github-actions-nginx
-        run: |
-          docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
-
   deploy:
-    needs: docker
     runs-on: ubuntu-latest
+
+    env:
+      CONTAINER_REGISTRY: docker.io
+      DOCKER_USERNAME: siddharth1
+      IMAGE_NAME: github-actions-nginx
+      IMAGE_TAG: latest
+
     steps:
       - name: Pull Image
-        env:
-          CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: siddharth1
-          IMAGE_NAME: github-actions-nginx
         run: |
-          docker pull $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+          docker pull $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG
 
-      - name: Docker Run
-        env:
-          CONTAINER_REGISTRY: docker.io
-          DOCKER_USERNAME: siddharth1
-          IMAGE_NAME: github-actions-nginx
+      - name: Run Container
         run: |
           docker run -d -p 8080:80 \
-            $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+            $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:$IMAGE_TAG
