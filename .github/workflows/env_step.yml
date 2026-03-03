@@ -1,7 +1,10 @@
 name: Exploring Variables and Secrets
 
 on:
-  push:
+  workflow_dispatch:
+    #push
+    
+
 
 env:
   CONTAINER_REGISTRY: docker.io
@@ -30,6 +33,9 @@ jobs:
 
   deploy:
     needs: docker
+    concurrency:
+      group: production 
+      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
       - name: Pull from Docker Hub
