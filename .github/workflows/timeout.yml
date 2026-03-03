@@ -1,0 +1,59 @@
+name: Exploring Variables and Secrets
+
+on:
+  push:
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4   # ✅ REQUIRED
+
+      - name: Docker Build
+        env:
+          CONTAINER_REGISTRY: docker.io
+          DOCKER_USERNAME: patracoder
+          IMAGE_NAME: github-actions-nginx
+        run: |
+          docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest .
+
+      - name: Docker Login
+        env:
+          DOCKER_USERNAME: patracoder
+        run: |
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login \
+            --username $DOCKER_USERNAME \
+            --password-stdin
+
+      - name: Docker Publish
+        env:
+          CONTAINER_REGISTRY: docker.io
+          DOCKER_USERNAME: patracoder
+          IMAGE_NAME: github-actions-nginx
+        run: |
+          docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+
+  deploy:
+    needs: docker
+    concurrency:
+      group: actions
+      cancel-in-progress: true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull Image
+        timeout-minutes: 2
+        env:
+          CONTAINER_REGISTRY: docker.io
+          DOCKER_USERNAME: patracoder
+          IMAGE_NAME: github-actions-nginx
+        run: |
+          docker pull $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+
+      - name: Docker Run
+        env:
+          CONTAINER_REGISTRY: docker.io
+          DOCKER_USERNAME: patracoder
+          IMAGE_NAME: github-actions-nginx
+        run: |
+          docker run -d -p 8080:80 \
+            $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
