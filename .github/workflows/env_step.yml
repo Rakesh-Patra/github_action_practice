@@ -7,6 +7,8 @@ jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4   # ✅ REQUIRED
+
       - name: Docker Build
         env:
           CONTAINER_REGISTRY: docker.io
@@ -18,17 +20,15 @@ jobs:
       - name: Docker Login
         env:
           DOCKER_USERNAME: patracoder
-          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          docker login --username=${DOCKER_USERNAME} \
-                        --password=${DOCKER_PASSWORD}
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login \
+            --username $DOCKER_USERNAME \
+            --password-stdin
 
       - name: Docker Publish
         env:
           CONTAINER_REGISTRY: docker.io
           DOCKER_USERNAME: patracoder
-
-
           IMAGE_NAME: github-actions-nginx
         run: |
           docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
@@ -37,6 +37,14 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     steps:
+      - name: Pull Image
+        env:
+          CONTAINER_REGISTRY: docker.io
+          DOCKER_USERNAME: patracoder
+          IMAGE_NAME: github-actions-nginx
+        run: |
+          docker pull $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+
       - name: Docker Run
         env:
           CONTAINER_REGISTRY: docker.io
@@ -44,4 +52,4 @@ jobs:
           IMAGE_NAME: github-actions-nginx
         run: |
           docker run -d -p 8080:80 \
-            ${{ env.CONTAINER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
