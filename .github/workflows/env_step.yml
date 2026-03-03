@@ -1,48 +1,45 @@
 name: Exploring Variables and Secrets
 
 on:
-  workflow_dispatch:
-    #push
-    
-
-
-env:
-  CONTAINER_REGISTRY: docker.io
-  DOCKER_USERNAME: trainwithshubham
-  IMAGE_NAME: gemininip
+  push:
 
 jobs:
   docker:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
       - name: Docker Build
+        env:
+          CONTAINER_REGISTRY: docker.io
+          DOCKER_USERNAME: siddharth1
+          IMAGE_NAME: github-actions-nginx
         run: |
-          docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest .
+          docker build -t $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
 
       - name: Docker Login
+        env:
+          DOCKER_USERNAME: siddharth1
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
         run: |
-          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login \
-            --username $DOCKER_USERNAME \
-            --password-stdin
+          docker login --username=${DOCKER_USERNAME} \
+                        --password=${DOCKER_PASSWORD}
 
       - name: Docker Publish
+        env:
+          CONTAINER_REGISTRY: docker.io
+          DOCKER_USERNAME: siddharth1
+          IMAGE_NAME: github-actions-nginx
         run: |
           docker push $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
 
   deploy:
     needs: docker
-    concurrency:
-      group: production 
-      cancel-in-progress: true
     runs-on: ubuntu-latest
     steps:
-      - name: Pull from Docker Hub
-        run: |
-          docker pull $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
-
       - name: Docker Run
+        env:
+          CONTAINER_REGISTRY: docker.io
+          DOCKER_USERNAME: siddharth1
+          IMAGE_NAME: github-actions-nginx
         run: |
           docker run -d -p 8080:80 \
-            $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+            ${{ env.CONTAINER_REGISTRY }}/${{ env.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
