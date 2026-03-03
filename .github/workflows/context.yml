@@ -1,19 +1,28 @@
-name: Build
+name: Context testing
 on: push
 
 jobs:
-  build:
+  dump_contexts_to_log:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - name: Build with logs
-        run: |
-          mkdir ${{ runner.temp }}/build_logs
-          echo "Logs from building" > ${{ runner.temp }}/build_logs/build.logs
-          exit 1
-      - name: Upload logs on fail
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: Build failure logs
-          path: ${{ runner.temp }}/build_logs
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - name: Dump secret context
+        env:
+          SECRETS_CONTEXT: ${{ toJson(secrets) }}
+        run: echo "$SECRETS_CONTEXT"
+     
